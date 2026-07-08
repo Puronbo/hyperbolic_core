@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Hyperbolic Content-Addressable Network</title>
+    <title>The Decentralized Manifold Mesh Network</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -49,22 +49,33 @@
         .panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; }
         .panel h3 { margin-top: 0; color: #fff; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.1rem; }
 
+        .p2p-box { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        textarea {
+            width: 100%; height: 60px; background: #070a0f; border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--accent-green); font-family: monospace; font-size: 0.8rem; padding: 8px; box-sizing: border-box; resize: none;
+        }
+        .btn-row { display: flex; gap: 10px; }
+        .p2p-btn {
+            flex: 1; background: #21262d; border: 1px solid var(--border-color); color: #fff;
+            padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500;
+        }
+        .p2p-btn:hover { background: #30363d; }
+        .p2p-btn.connect-action { background: var(--accent-purple); color: #0b0e14; font-weight: 600; }
+
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-card { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); }
         .stat-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; }
         .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--accent-blue); margin-top: 4px; }
         .stat-val.secure { color: var(--accent-green); }
-        .stat-val.hash-meta { color: var(--accent-purple); font-family: monospace; font-size: 0.9rem; word-break: break-all; }
 
         .log-stream {
             background-color: #070a0f; border: 1px solid var(--border-color); border-radius: 8px;
-            height: 220px; overflow-y: auto; font-family: monospace; font-size: 0.82rem; padding: 12px; box-sizing: border-box;
+            height: 160px; overflow-y: auto; font-family: monospace; font-size: 0.82rem; padding: 12px; box-sizing: border-box;
         }
-        .log-entry { margin-bottom: 8px; line-height: 1.4; border-left: 3px solid transparent; padding-left: 8px; }
+        .log-entry { margin-bottom: 6px; line-height: 1.4; border-left: 3px solid transparent; padding-left: 8px; }
         .log-entry.info { color: #8b949e; border-color: #388bfd; }
         .log-entry.ledger { color: var(--accent-purple); border-color: var(--accent-purple); }
         .log-entry.success { color: var(--accent-green); border-color: #2ea043; }
-        .log-entry.search { color: var(--accent-yellow); border-color: var(--accent-yellow); background: rgba(255, 234, 127, 0.03); padding: 4px; }
 
         canvas { max-width: 100%; max-height: 100%; }
     </style>
@@ -73,12 +84,12 @@
 
 <header>
     <h1>The Decentralized Manifold Internet</h1>
-    <p class="subtitle">Content-Addressable Keyword Hashing & Hyperbolic Routing Grid</p>
+    <p class="subtitle">Live WebRTC Peer-to-Peer Mesh Node & Hyperbolic Routing Matrix</p>
 </header>
 
 <div class="search-container">
-    <input type="text" id="queryInput" class="search-bar" placeholder="Type keywords to search content hashes (e.g., music, oral, farming)...">
-    <button class="search-btn" onclick="searchHashedContent()">Query Node</button>
+    <input type="text" id="queryInput" class="search-bar" placeholder="Type data payload to broadcast across peers...">
+    <button class="search-btn" onclick="publishAndBroadcast()">Publish & Broadcast</button>
 </div>
 
 <div class="main-layout">
@@ -88,147 +99,165 @@
 
     <div class="sidebar">
         <div class="panel">
-            <h3>Network Node Identity Matrix</h3>
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Content Anchors</div>
-                    <div class="stat-val secure" id="doc-count">0</div>
+            <h3>P2P Signal Handshake Engine</h3>
+            <div class="p2p-box">
+                <div class="stat-label">1. Local Handshake Token (Copy this)</div>
+                <textarea id="localToken" readonly placeholder="Generating local token..."></textarea>
+                <div class="btn-row">
+                    <button class="p2p-btn" onclick="initiatePeerConnection()">Generate Offer Token</button>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Active Terms Vectorized</div>
-                    <div class="stat-val" id="term-count">0</div>
-                </div>
-                <div class="stat-card" style="grid-column: span 2;">
-                    <div class="stat-label">Latest Linked Content Hash</div>
-                    <div class="stat-val hash-meta" id="latest-root-hash">GENESIS_INIT</div>
+                
+                <div class="stat-label" style="margin-top:5px;">2. Remote Peer Token (Paste theirs here)</div>
+                <textarea id="remoteToken" placeholder="Paste the token from your other browser node here..."></textarea>
+                <div class="btn-row">
+                    <button class="p2p-btn connect-action" onclick="finalizePeerConnection()">Lock Connection</button>
                 </div>
             </div>
         </div>
 
         <div class="panel">
-            <h3>Mesh Distributed Ledger Pipeline</h3>
+            <h3>Local Node Telemetry</h3>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Mesh Connection State</div>
+                    <div class="stat-val" id="peer-status" style="color:var(--accent-purple)">OFFLINE</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Global Items Indexed</div>
+                    <div class="stat-val secure" id="doc-count">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Live Wire Communication Streams</h3>
             <div class="log-stream" id="console-logs">
-                <div class="log-entry info">[NET START]: Hyperbolic Content Router loaded. Intercepting data streams...</div>
+                <div class="log-entry info">[SYSTEM INITIALIZED]: Node operating in isolated runtime mode. Standby for peer peering...</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let contentNetwork = [];
-    let vocabulary = new Set();
-    let termFrequencyMatrix = [];
-    let inverseDocFrequencyMap = {};
-    let currentGlobalStateHash = "0000000000000000";
+    let localIndex = [];
+    let peerConnection = null;
+    let dataChannel = null;
 
-    // Mathematical utility to calculate location based on a text string
-    function getStringHashCoords(str) {
+    // Hyperbolic Coordinate Mapping Math
+    function getCoordinateMap(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
-            hash = (hash << 5) - hash + str.charCodeAt(i);
-            hash |= 0;
+            hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0;
         }
         const val = Math.abs(hash);
-        const radius = 0.25 + (val % 55) / 100;
+        const radius = 0.2 + (val % 60) / 100;
         const angle = (val % 360) * (Math.PI / 180);
-        return { x: radius * Math.cos(angle), y: radius * Math.sin(angle), rawSeed: val };
+        return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
     }
 
-    function tokenize(text) {
-        return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2);
-    }
+    // --- WEBRTC DECENTRALIZED NETWORKING SUITE ---
+    const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-    // --- INTEGRATED CRAWL & HASH ENGINE ---
-    function ingestWebDocument(rawText) {
-        const words = tokenize(rawText);
-        if (words.length === 0) return;
+    function initiatePeerConnection() {
+        peerConnection = new RTCPeerConnection(rtcConfig);
+        dataChannel = peerConnection.createDataChannel("manifoldMeshChannel");
+        
+        setupDataChannelEvents(dataChannel);
 
-        // 1. Text Vector Mapping Setup
-        const counts = {};
-        const uniqueWords = new Set(words);
-        words.forEach(w => {
-            counts[w] = (counts[w] || 0) + 1;
-            vocabulary.add(w);
-        });
-        uniqueWords.forEach(w => {
-            inverseDocFrequencyMap[w] = (inverseDocFrequencyMap[w] || 0) + 1;
-        });
-        termFrequencyMatrix.push(counts);
-
-        // 2. Cryptographic Content Hashing (Simulating SHA-256 Content Identifier)
-        const coords = getStringHashCoords(rawText);
-        const blockString = rawText + currentGlobalStateHash + JSON.stringify(coords);
-        let blockHashVal = 0;
-        for (let i = 0; i < blockString.length; i++) {
-            blockHashVal = (blockHashVal << 5) - blockHashVal + blockString.charCodeAt(i);
-            blockHashVal |= 0;
-        }
-        const blockContentHash = "Qm" + Math.abs(blockHashVal).toString(16).toUpperCase() + Math.abs(blockHashVal * 19).toString(16).toUpperCase();
-        currentGlobalStateHash = blockContentHash;
-
-        // 3. Save Node Package to Mesh Network Array
-        const networkNode = {
-            text: rawText,
-            hashId: blockContentHash,
-            x: coords.x,
-            y: coords.y,
-            label: `[${blockContentHash.substring(0,8)}]: ${rawText.substring(0,25)}...`
+        peerConnection.onicecandidate = event => {
+            if (!event.candidate) {
+                document.getElementById("localToken").value = btoa(JSON.stringify(peerConnection.localDescription));
+                appendLog("🎫 Offer Token generated! Copy this string and give it to Peer B.", "ledger");
+            }
         };
 
-        contentNetwork.push(networkNode);
-
-        // Update User Dashboard UI
-        document.getElementById("doc-count").innerText = contentNetwork.length;
-        document.getElementById("term-count").innerText = vocabulary.size;
-        document.getElementById("latest-root-hash").innerText = blockContentHash;
-
-        appendLog(`📡 [Mesh Ingest]: Crawled context & signed with hash address.`, "info");
-        appendLog(`   ↳ 🧱 CONTENT IDENTIFIER: ${blockContentHash.substring(0,24)}...`, "ledger");
-
-        poincareChart.data.datasets[1].data.push(networkNode);
-        poincareChart.update();
+        peerConnection.createOffer().then(offer => peerConnection.setLocalDescription(offer));
     }
 
-    // --- SEMANTIC CONTENT ROUTER SEARCH ---
-    function searchHashedContent() {
-        const queryText = document.getElementById("queryInput").value.trim();
-        if (!queryText) return;
+    function finalizePeerConnection() {
+        const rawInput = document.getElementById("remoteToken").value.trim();
+        if (!rawInput) return alert("Please enter a valid remote token first.");
+        
+        const remoteDesc = new RTCSessionDescription(JSON.parse(atob(rawInput)));
 
-        appendLog(`🔍 [ROUTING REQUEST]: Resolving content hash for tokens: "${queryText}"`, "search");
-        const queryWords = tokenize(queryText);
-        const queryVector = {};
-        queryWords.forEach(w => { if (vocabulary.has(w)) queryVector[w] = (queryVector[w] || 0) + 1; });
+        if (!peerConnection) {
+            // We are acting as Peer B (Responding to an offer)
+            peerConnection = new RTCPeerConnection(rtcConfig);
+            peerConnection.oniceconnectionstatechange = () => updateConnectionUI();
+            
+            peerConnection.ondatachannel = event => {
+                dataChannel = event.channel;
+                setupDataChannelEvents(dataChannel);
+            };
 
-        if (Object.keys(queryVector).length === 0) {
-            appendLog(`   ↳ ❌ Content address resolution failed. Keywords not indexed in node clusters.`, "warn");
-            return;
-        }
-
-        let matchedNode = null;
-        let highestProximityScore = -1;
-        poincareChart.data.datasets[2].data = [];
-
-        contentNetwork.forEach((node, idx) => {
-            let score = 0;
-            const docCounts = termFrequencyMatrix[idx];
-            for (let word in queryVector) {
-                if (docCounts[word]) {
-                    const tf = docCounts[word];
-                    const idf = Math.log(contentNetwork.length / (inverseDocFrequencyMap[word] || 1)) + 1;
-                    score += tf * idf;
+            peerConnection.onicecandidate = event => {
+                if (!event.candidate) {
+                    document.getElementById("localToken").value = btoa(JSON.stringify(peerConnection.localDescription));
+                    appendLog("🎫 Answer Token generated! Copy it back to Peer A to finish the link.", "ledger");
                 }
-            }
-            if (score > highestProximityScore) { highestProximityScore = score; matchedNode = node; }
-        });
+            };
 
-        if (matchedNode && highestProximityScore > 0) {
-            appendLog(`   ↳ 🎯 CONTENT LINK DECRYPTED! Proximity Matrix Match.`, "success");
-            appendLog(`   ↳ [RESOLVED DATA]: "${matchedNode.text}"`, "success");
-            appendLog(`   ↳ [HASH ADDRESS]: ${matchedNode.hashId}`, "ledger");
-            poincareChart.data.datasets[2].data.push({ x: matchedNode.x, y: matchedNode.y, label: `TARGET MESH HIT` });
+            peerConnection.setRemoteDescription(remoteDesc).then(() => {
+                return peerConnection.createAnswer();
+            }).then(answer => peerConnection.setLocalDescription(answer));
+
         } else {
-            appendLog(`   ↳ ❌ No relevant network addresses could verify matching signatures.`, "warn");
+            // We are acting as Peer A (Receiving the answer back from Peer B)
+            peerConnection.setRemoteDescription(remoteDesc).then(() => {
+                appendLog("⚡ Mutual handshake locked. Establishing secure direct P2P link...", "info");
+            });
         }
+    }
+
+    function setupDataChannelEvents(channel) {
+        channel.onopen = () => {
+            appendLog("🚀 DATA MATRIX CHANNEL ONLINE. YOU ARE DIRECTLY LINKED TO THE MESH INTERNET.", "success");
+            updateConnectionUI();
+        };
+        channel.onclose = () => {
+            appendLog("❌ Channel closed. Peer dropped offline.", "info");
+            updateConnectionUI();
+        };
+        channel.onmessage = event => {
+            const incomingNode = JSON.parse(event.data);
+            appendLog(`📥 [P2P RECEIVE]: Incoming block synced from remote peer.`, "success");
+            renderNewNodeToEngine(incomingNode.text, incomingNode.x, incomingNode.y, false);
+        };
+    }
+
+    function updateConnectionUI() {
+        const state = dataChannel && dataChannel.readyState === "open" ? "CONNECTED" : "OFFLINE";
+        const uiElement = document.getElementById("peer-status");
+        uiElement.innerText = state;
+        uiElement.style.color = state === "CONNECTED" ? "var(--accent-green)" : "var(--accent-purple)";
+    }
+
+    // --- NODE INGESTION AND SYNCHRONIZATION ---
+    function publishAndBroadcast() {
+        const payloadText = document.getElementById("queryInput").value.trim();
+        if (!payloadText) return;
+
+        const coords = getCoordinateMap(payloadText);
+        renderNewNodeToEngine(payloadText, coords.x, coords.y, true);
+        document.getElementById("queryInput").value = "";
+
+        // If a peer is connected, broadcast the structural change directly over WebRTC
+        if (dataChannel && dataChannel.readyState === "open") {
+            const dataPacket = { text: payloadText, x: coords.x, y: coords.y };
+            dataChannel.send(JSON.stringify(dataPacket));
+            appendLog(`📤 [P2P BROADCAST]: Blasting data packet to connected nodes...`, "info");
+        }
+    }
+
+    function renderNewNodeToEngine(text, x, y, isLocallyGenerated) {
+        const nodeObj = { x: x, y: y, label: text };
+        localIndex.push(nodeObj);
+        
+        document.getElementById("doc-count").innerText = localIndex.length;
+        
+        appendLog(`   ↳ 🧱 Anchored node coordinates: [X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}]`, isLocallyGenerated ? "info" : "ledger");
+
+        poincareChart.data.datasets[1].data.push(nodeObj);
         poincareChart.update();
     }
 
@@ -238,15 +267,14 @@
         el.innerText = text; logWindow.appendChild(el); logWindow.scrollTop = logWindow.scrollHeight;
     }
 
-    // Canvas Visualization Pipeline
+    // Chart Configuration Framework
     const ctx = document.getElementById('poincareCanvas').getContext('2d');
     const poincareChart = new Chart(ctx, {
         type: 'scatter',
         data: {
             datasets: [
-                { label: 'Network Core', data: [{x:0, y:0, label: "MAIN ENGINE SEED LAYER"}], backgroundColor: '#ffea7f', pointRadius: 8 },
-                { label: 'Hashed Internet Content', data: [], backgroundColor: '#bc8cff', pointRadius: 6 },
-                { label: 'Active Target Request Route', data: [], backgroundColor: '#7ee787', pointRadius: 12, borderWidth: 2, borderColor: '#fff' }
+                { label: 'Origin Root', data: [{x:0, y:0, label: "GENESIS"}], backgroundColor: '#ffea7f', pointRadius: 8 },
+                { label: 'Mesh Nodes', data: [], backgroundColor: '#bc8cff', pointRadius: 7 }
             ]
         },
         options: {
@@ -258,25 +286,6 @@
             }
         }
     });
-
-    const humanInternetDataStream = [
-        "Ancient oral folklore and traditional myths passed down through native community storytelling generations.",
-        "Classical symphonies music composition orchestration and complex structural harmonic rhythms.",
-        "Mesoamerican archeological discoveries translation of historical phonetic alphabets and glyph languages.",
-        "Modern digital pop folklore internet meme evolution viral phrasing trends and community dialects.",
-        "Minimalist architectural blueprints urban layout planning industrial design aesthetic building spaces.",
-        "Indigenous historical farming techniques preservation of ecosystem knowledge and agricultural heritage."
-    ];
-
-    let dataIdx = 0;
-    function runMeshNetworkCrawl() {
-        if (dataIdx < humanInternetDataStream.length) {
-            ingestWebDocument(humanInternetDataStream[dataIdx]);
-            dataIdx++;
-            setTimeout(runMeshNetworkCrawl, 3000);
-        }
-    }
-    setTimeout(runMeshNetworkCrawl, 1000);
 </script>
 
 </body>
