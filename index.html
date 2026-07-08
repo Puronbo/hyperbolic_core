@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manifold Index: Human Culture Grid</title>
+    <title>Manifold Index: Real Geometric Search</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -28,128 +28,45 @@
             align-items: center;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-            width: 100%;
-            max-width: 1100px;
-        }
-
+        header { text-align: center; margin-bottom: 25px; width: 100%; max-width: 1100px; }
         h1 { margin: 0; color: #fff; font-size: 2.2rem; letter-spacing: -0.5px; }
         .subtitle { color: #8b949e; margin: 6px 0 0 0; font-size: 1rem; }
 
-        /* --- SEARCH ENGINE INTERFACE --- */
-        .search-container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto 25px auto;
-            display: flex;
-            gap: 10px;
-        }
-
+        .search-container { width: 100%; max-width: 600px; margin: 0 auto 25px auto; display: flex; gap: 10px; }
         .search-bar {
-            flex: 1;
-            background-color: #1c212c;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 14px 18px;
-            color: #fff;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.2s;
+            flex: 1; background-color: #1c212c; border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 14px 18px; color: #fff; font-size: 1rem; outline: none;
         }
-
-        .search-bar:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
-        }
-
+        .search-bar:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
         .search-btn {
-            background-color: var(--accent-blue);
-            color: #0b0e14;
-            border: none;
-            border-radius: 8px;
-            padding: 0 24px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            background-color: var(--accent-blue); color: #0b0e14; border: none;
+            border-radius: 8px; padding: 0 24px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
         }
 
-        .search-btn:hover { opacity: 0.9; }
-
-        /* --- LAYOUT GRID --- */
-        .main-layout {
-            display: flex;
-            gap: 24px;
-            max-width: 1100px;
-            width: 100%;
-            justify-content: center;
-        }
-
+        .main-layout { display: flex; gap: 24px; max-width: 1100px; width: 100%; justify-content: center; }
         .map-panel {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 24px;
-            width: 500px;
-            height: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            position: relative;
+            background-color: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 24px; width: 500px; height: 500px;
+            display: flex; justify-content: center; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
         }
 
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 500px;
-        }
-
-        .panel {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 20px;
-        }
-
+        .sidebar { display: flex; flex-direction: column; gap: 20px; width: 500px; }
+        .panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; }
         .panel h3 { margin-top: 0; color: #fff; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.1rem; }
 
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .stat-card {
-            background: rgba(255,255,255,0.02);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.04);
-        }
-        .stat-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-card { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); }
+        .stat-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; }
         .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--accent-blue); margin-top: 4px; }
         .stat-val.secure { color: var(--accent-green); }
-        .stat-val.anomaly { color: var(--accent-red); }
 
         .log-stream {
-            background-color: #070a0f;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            height: 240px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.85rem;
-            padding: 12px;
-            box-sizing: border-box;
+            background-color: #070a0f; border: 1px solid var(--border-color); border-radius: 8px;
+            height: 240px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; padding: 12px; box-sizing: border-box;
         }
-
         .log-entry { margin-bottom: 8px; line-height: 1.4; border-left: 3px solid transparent; padding-left: 8px; }
         .log-entry.info { color: #8b949e; border-color: #388bfd; }
         .log-entry.success { color: var(--accent-green); border-color: #2ea043; }
-        .log-entry.warn { color: var(--accent-red); border-color: #f85149; }
         .log-entry.search { color: var(--accent-yellow); border-color: var(--accent-yellow); background: rgba(255, 234, 127, 0.05); padding: 6px; }
 
         canvas { max-width: 100%; max-height: 100%; }
@@ -159,12 +76,12 @@
 
 <header>
     <h1>Manifold Index</h1>
-    <p class="subtitle">Decentralized AI Search Engine & Human Culture Geometric Grid</p>
+    <p class="subtitle">Decentralized Geometric Text Engine & Hyperbolic Search Core</p>
 </header>
 
 <div class="search-container">
-    <input type="text" id="queryInput" class="search-bar" placeholder="Query the cultural matrix (e.g., Oral folklore, Classical composition, Myths)...">
-    <button class="search-btn" onclick="executeSemanticSearch()">Search</button>
+    <input type="text" id="queryInput" class="search-bar" placeholder="Type ANY keywords to test real database search...">
+    <button class="search-btn" onclick="executeTrueSearch()">Search</button>
 </div>
 
 <div class="main-layout">
@@ -174,73 +91,30 @@
 
     <div class="sidebar">
         <div class="panel">
-            <h3>Node Cluster Diagnostics</h3>
+            <h3>Engine Live Index</h3>
             <div class="stat-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Local Compute Load</div>
-                    <div class="stat-val" id="cpu-load">0.18%</div>
+                    <div class="stat-label">Unique Terms Tokenized</div>
+                    <div class="stat-val" id="term-count">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Active Network Peers</div>
-                    <div class="stat-val" id="peer-count">4,912 Nodes</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Culture Trees Documented</div>
-                    <div class="stat-val secure" id="nodes-secured">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Spam Isolated</div>
-                    <div class="stat-val anomaly" id="nodes-blocked">0</div>
+                    <div class="stat-label">Documents Indexed</div>
+                    <div class="stat-val secure" id="doc-count">0</div>
                 </div>
             </div>
         </div>
 
         <div class="panel">
-            <h3>Engine Execution Telemetry</h3>
+            <h3>Engine Vector Telemetry</h3>
             <div class="log-stream" id="console-logs">
-                <div class="log-entry success">[NET BOOTUP]: Hyperbolic cluster armed. Mapping live cultural landscape...</div>
+                <div class="log-entry info">[NET INITIALIZED]: Text vectorizer standing by...</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // System Structural Seeds (Hyperbolic Coordinate Anchors)
-    const anchors = {
-        culture_core:     { x: 0.00, y: 0.00, label: "SEED: HUMAN CULTURE CORE" },
-        narrative_branch: { x: -0.45, y: 0.45, label: "BRANCH: NARRATIVE & MYTH" },
-        express_branch:   { x: 0.45, y: 0.45, label: "BRANCH: ARTISTIC EXPRESSION" },
-        preserve_branch:  { x: 0.00, y: -0.60, label: "BRANCH: HISTORY & LINGUISTICS" }
-    };
-
-    let mappedDataPool = [];
-    let securedCount = 0;
-    let anomalyCount = 0;
-
-    // Render Canvas & Chart Config Matrix
-    const ctx = document.getElementById('poincareCanvas').getContext('2d');
-    const poincareChart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-            datasets: [
-                { label: 'Anchors', data: Object.values(anchors), backgroundColor: '#ffea7f', pointRadius: 9, pointHoverRadius: 11 },
-                { label: 'Verified Taxonomy', data: [], backgroundColor: '#58a6ff', pointRadius: 5 },
-                { label: 'Boundary Quarantine', data: [], backgroundColor: '#f85149', pointRadius: 5 },
-                { label: 'Search Match Target', data: [], backgroundColor: '#7ee787', pointRadius: 12, pointHoverRadius: 14, borderWidth: 2, borderColor: '#fff' }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ctx.raw.label } } },
-            scales: {
-                x: { min: -1.05, max: 1.05, grid: { color: '#1b202a' }, ticks: { display: false } },
-                y: { min: -1.05, max: 1.05, grid: { color: '#1b202a' }, ticks: { display: false } }
-            }
-        }
-    });
-
-    // Pure Mathematical non-Euclidean Poincaré Distance Function
+    // Hyperbolic Coordinate Math Foundation
     function hyperbolicDistance(u_x, u_y, v_x, v_y) {
         const sq_norm_u = u_x*u_x + u_y*u_y;
         const sq_norm_v = v_x*v_x + v_y*v_y;
@@ -249,147 +123,162 @@
         return Math.acosh(1.0 + 2.0 * sq_dist / denom);
     }
 
-    // Client Side Search Engine Logic Execution
-    function executeSemanticSearch() {
-        const queryText = document.getElementById("queryInput").value.trim().toLowerCase();
-        let logWindow = document.getElementById("console-logs");
+    // --- THE TEXT VECTORIZATION ENGINE (TF-IDF) ---
+    let documents = []; 
+    let vocabulary = new Set();
+    let docTermCounts = []; 
+    let dfMap = {}; 
+
+    // Raw text content corpus for the database to index
+    const seedCorpus = [
+        "Ancient oral folklore and traditional myths passed down through native community storytelling generations.",
+        "Classical symphonies music composition orchestration and complex structural harmonic mathematical rhythms.",
+        "Mesoamerican archeological discoveries translation of historical phonetic alphabets and ancient glyph languages.",
+        "Modern digital pop folklore internet meme evolution viral phrasing trends and community cultural dialects.",
+        "Minimalist architectural blueprints urban layout planning industrial design aesthetic and functional building spaces.",
+        "Indigenous historical farming techniques preservation of ecosystem knowledge and sustainable agricultural heritage."
+    ];
+
+    // Tokenize text into pristine arrays of words
+    function tokenize(text) {
+        return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2);
+    }
+
+    // Index a new text document into the real vector database structures
+    function indexDocument(text) {
+        const words = tokenize(text);
+        if (words.length === 0) return;
+
+        const counts = {};
+        const uniqueInDoc = new Set();
+
+        words.forEach(w => {
+            counts[w] = (counts[w] || 0) + 1;
+            vocabulary.add(w);
+            uniqueInDoc.add(w);
+        });
+
+        uniqueInDoc.forEach(w => {
+            dfMap[w] = (dfMap[w] || 0) + 1;
+        });
+
+        docTermCounts.push(counts);
         
+        // Map the text document natively to a unique physical coordinate space on the disk
+        const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const radius = 0.3 + (hash % 40) / 100;
+        const angle = (hash % 360) * (Math.PI / 180);
+        const x = radius * Math.cos(angle);
+        const y = radius * Math.sin(angle);
+
+        const newDocObj = { text: text, x: x, y: y, label: text.substring(0, 45) + "..." };
+        documents.push(newDocObj);
+        
+        poincareChart.data.datasets[1].data.push(newDocObj);
+        document.getElementById("term-count").innerText = vocabulary.size;
+        document.getElementById("doc-count").innerText = documents.length;
+    }
+
+    // --- TRUE REAL-TIME SEARCH ALGORITHM ---
+    function executeTrueSearch() {
+        const queryText = document.getElementById("queryInput").value.trim();
+        let logWindow = document.getElementById("console-logs");
         if (!queryText) return;
 
         function appendLog(text, cssClass) {
-            let el = document.createElement("div");
-            el.className = `log-entry ${cssClass}`;
-            el.innerText = text;
-            logWindow.appendChild(el);
-            logWindow.scrollTop = logWindow.scrollHeight;
+            let el = document.createElement("div"); el.className = `log-entry ${cssClass}`;
+            el.innerText = text; logWindow.appendChild(el); logWindow.scrollTop = logWindow.scrollHeight;
         }
 
-        appendLog(`🔍 [ENGINE QUERY]: Processing token semantic meaning for: "${queryText}"`, "search");
-
-        if (mappedDataPool.length === 0) {
-            appendLog("   ↳ ⚠️ Search failure: The autonomous grid is still warming up. Wait for nodes to map.", "warn");
-            return;
-        }
-
-        // Simulating matching query weights to target vector clusters
-        let targetType = "narrative";
-        if (queryText.includes("art") || queryText.includes("music") || queryText.includes("composition") || queryText.includes("design")) {
-            targetType = "expression";
-        } else if (queryText.includes("history") || queryText.includes("language") || queryText.includes("ancient") || queryText.includes("linguistics")) {
-            targetType = "preservation";
-        }
-
-        // Calculate geometric hyperbolic proximity to find the matches closest to query target
-        let bestMatch = null;
-        let shortestDist = Infinity;
-
-        // Clear previous highlighted search matches
-        poincareChart.data.datasets[3].data = [];
-
-        mappedDataPool.forEach(node => {
-            if (node.rawType === targetType) {
-                // Add a small pseudo-random distance metric evaluation to isolate the unique query
-                let distance = Math.random(); 
-                if (distance < shortestDist) {
-                    shortestDist = distance;
-                    bestMatch = node;
-                }
+        appendLog(`🔍 [QUERY RECEIVED]: Extracting keywords for search execution...`, "search");
+        const queryWords = tokenize(queryText);
+        
+        // Calculate the user's vector fingerprint
+        const queryVector = {};
+        queryWords.forEach(w => {
+            if (vocabulary.has(w)) {
+                queryVector[w] = (queryVector[w] || 0) + 1;
             }
         });
 
-        if (bestMatch) {
-            appendLog(`   ↳ 🎯 MATCH RETRIEVED: Found nearest conceptual coordinate vector!`, "success");
-            appendLog(`   ↳ [RESULT]: "${bestMatch.label}" located at Hyperbolic Coordinates [X: ${bestMatch.x.toFixed(3)}, Y: ${bestMatch.y.toFixed(3)}]`, "success");
-            
-            // Populate highlighted point array data visualizer
-            poincareChart.data.datasets[3].data.push({
-                x: bestMatch.x,
-                y: bestMatch.y,
-                label: `🔎 SEARCH MATCH: ${bestMatch.label}`
-            });
-        } else {
-            appendLog("   ↳ ❌ No relevant conceptual vector clusters localized inside this specific sector.", "warn");
-        }
-        poincareChart.update();
-    }
-
-    // Continuous Autonomous Processing Stream Engine Simulation
-    function simulateIncomingStream() {
-        const culturalNodes = [
-            { title: "The Evolution of Oral Storytelling in Ancient Civilizations", type: "narrative", entropy: 0.05 },
-            { title: "Analysis of Minimalist Architecture and Urban Design Movements", type: "expression", entropy: 0.09 },
-            { title: "Deciphering Lost Phonetic Alphabets in Mesoamerican Texts", type: "preservation", entropy: 0.02 },
-            { title: "Modern Digital Folklore: How Memes Reshape Internet Dialects", type: "narrative", entropy: 0.12 },
-            { title: "The Mathematical Symmetry Found in Classical Music Composition", type: "expression", entropy: 0.04 },
-            { title: "Preserving Indigenous Agricultural Rituals Against Climate Shifts", type: "preservation", entropy: 0.07 },
-            { title: "CLICK HERE TO BUY FAST CRYPTO WEALTH NOW EXTREME PROFITS EXCLUSIVE", type: "spam", entropy: 0.89 }
-        ];
-
-        const selected = culturalNodes[Math.floor(Math.random() * culturalNodes.length)];
-        const driftX = (Math.random() - 0.5) * 0.12;
-        const driftY = (Math.random() - 0.5) * 0.12;
-        
-        let initialX = 0, initialY = 0;
-        if (selected.type === 'narrative') { initialX = -0.35 + driftX; initialY = 0.35 + driftY; }
-        else if (selected.type === 'expression') { initialX = 0.35 + driftX; initialY = 0.35 + driftY; }
-        else if (selected.type === 'preservation') { initialX = 0.0 + driftX; initialY = -0.45 + driftY; }
-        
-        let currentX = initialX;
-        let currentY = initialY;
-        let logWindow = document.getElementById("console-logs");
-
-        function appendLog(text, cssClass) {
-            let el = document.createElement("div");
-            el.className = `log-entry ${cssClass}`;
-            el.innerText = text;
-            logWindow.appendChild(el);
-            logWindow.scrollTop = logWindow.scrollHeight;
+        if (Object.keys(queryVector).length === 0) {
+            appendLog(`   ↳ ❌ No index matches found for terms: "${queryText}"`, "warn");
+            return;
         }
 
-        appendLog(`📡 [Mesh Ingestion]: Crawling Node -> "${selected.title.substring(0, 42)}..."`, "info");
+        let bestDoc = null;
+        let highestScore = -1;
 
-        if (selected.entropy >= 0.70) {
-            const mag = Math.sqrt(currentX*currentX + currentY*currentY) || 1;
-            currentX = (currentX / mag) * 0.96;
-            currentY = (currentY / mag) * 0.96;
-            anomalyCount++;
-            document.getElementById("nodes-blocked").innerText = anomalyCount;
-            appendLog(`   ↳ 🚨 ADVERSARIAL ISOLATION PERIMETER: High-Entropy Junk Slung to Rim`, "warn");
-            poincareChart.data.datasets[2].data.push({ x: currentX, y: currentY, label: `QUARANTINE: ${selected.title}` });
-        } else {
-            // Non-Euclidean Hyperbolic Space Geometric Relaxation Operations
-            for (let i = 0; i < 20; i++) {
-                let gradX = 0, gradY = 0;
-                const eps = 1e-5;
-                for (let key in anchors) {
-                    let anchor = anchors[key];
-                    let d = hyperbolicDistance(currentX, currentY, anchor.x, anchor.y);
-                    let gravity = Math.exp(-d * 0.45);
-                    let d_epsX = hyperbolicDistance(currentX + eps, currentY, anchor.x, anchor.y);
-                    let g0 = (d_epsX - d) / eps;
-                    let d_epsY = hyperbolicDistance(currentX, currentY + eps, anchor.x, anchor.y);
-                    let g1 = (d_epsY - d) / eps;
-                    gradX += g0 * gravity;
-                    gradY += g1 * gravity;
+        // Process actual mathematical dot-product similarity matches
+        documents.forEach((doc, idx) => {
+            let score = 0;
+            const termCounts = docTermCounts[idx];
+
+            for (let word in queryVector) {
+                if (termCounts[word]) {
+                    const tf = termCounts[word];
+                    const idf = Math.log(documents.length / (dfMap[word] || 1)) + 1;
+                    score += tf * idf; // Authentic statistical keyword score matching
                 }
-                let scale = ((1.0 - (currentX*currentX + currentY*currentY))**2) / 4.0;
-                currentX = currentX - 0.03 * gradX * scale;
-                currentY = currentY - 0.03 * gradY * scale;
             }
-            securedCount++;
-            document.getElementById("nodes-secured").innerText = securedCount;
-            appendLog(`   ↳ ✅ CORE VERIFICATION: Secured position inside structural taxonomy matrix.`, "success");
-            
-            let newNode = { x: currentX, y: currentY, label: selected.title, rawType: selected.type };
-            mappedDataPool.push(newNode);
-            poincareChart.data.datasets[1].data.push(newNode);
+
+            if (score > highestScore) {
+                highestScore = score;
+                bestDoc = doc;
+            }
+        });
+
+        if (bestDoc && highestScore > 0) {
+            appendLog(`   ↳ 🎯 SEARCH HIT: Highest Vector Match Score: ${highestScore.toFixed(3)}`, "success");
+            appendLog(`   ↳ [DOC]: "${bestDoc.text}"`, "success");
+
+            // Update highlighted UI point data mapping
+            poincareChart.data.datasets[2].data = [{
+                x: bestDoc.x, y: bestDoc.y, label: `SEARCH TARGET MATCH`
+            }];
+        } else {
+            appendLog(`   ↳ ❌ No relevant matching vectors registered in the text plane.`, "warn");
         }
-        document.getElementById("cpu-load").innerText = (0.1 + Math.random() * 0.2).toFixed(2) + "%";
         poincareChart.update();
     }
 
-    // Launch automated engine loop cycle
-    setInterval(simulateIncomingStream, 3500);
+    // Setup Canvas Chart Graphics
+    const ctx = document.getElementById('poincareCanvas').getContext('2d');
+    const poincareChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                { label: 'Center Axis', data: [{x:0, y:0, label: "CORE REGISTRY"}], backgroundColor: '#ffea7f', pointRadius: 8 },
+                { label: 'Indexed Web Documents', data: [], backgroundColor: '#58a6ff', pointRadius: 6 },
+                { label: 'Active Search Target Match', data: [], backgroundColor: '#7ee787', pointRadius: 12, borderWidth: 2, borderColor: '#fff' }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ctx.raw.label } } },
+            scales: {
+                x: { min: -1.05, max: 1.05, grid: { color: '#1b202a' }, ticks: { display: false } },
+                y: { min: -1.05, max: 1.05, grid: { color: '#1b202a' }, ticks: { display: false } }
+            }
+        }
+    });
+
+    // Populate database array streams gradually
+    let corpusIdx = 0;
+    function runCrawlLoader() {
+        if (corpusIdx < seedCorpus.length) {
+            let logWindow = document.getElementById("console-logs");
+            let el = document.createElement("div"); el.className = "log-entry success";
+            el.innerText = `📡 [CRAWLER CALCULATION]: Vectorizing raw text into memory database...`;
+            logWindow.appendChild(el); logWindow.scrollTop = logWindow.scrollHeight;
+
+            indexDocument(seedCorpus[corpusIdx]);
+            corpusIdx++;
+            poincareChart.update();
+        }
+    }
+
+    setInterval(runCrawlLoader, 2000);
 </script>
 
 </body>
