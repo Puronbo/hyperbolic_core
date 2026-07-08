@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyperbolic Manifold Network Core</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --accent-blue: #58a6ff;
+            --accent-red: #f85149;
+            --accent-green: #7ee787;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 { margin: 0; color: #fff; font-size: 2rem; }
+        .subtitle { color: #8b949e; margin: 5px 0 0 0; }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .map-container {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            width: 550px;
+            height: 550px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 450px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .panel h3 { margin-top: 0; color: #fff; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--accent-blue); }
+        .stat-val.secure { color: var(--accent-green); }
+        .stat-val.anomaly { color: var(--accent-red); }
+
+        .log-stream {
+            background-color: #010409;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            height: 220px;
+            overflow-y: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.85rem;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .log-entry { margin-bottom: 6px; line-height: 1.4; }
+        .log-entry.info { color: #8b949e; }
+        .log-entry.success { color: var(--accent-green); }
+        .log-entry.warn { color: var(--accent-red); }
+
+        canvas { max-width: 100%; max-height: 100%; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Hyperbolic Manifold Core</h1>
+    <p class="subtitle">Distributed Peer-to-Peer Semantic Grid Dashboard</p>
+</header>
+
+<div class="main-layout">
+    <div class="map-container">
+        <canvas id="poincareCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <div class="sidebar">
+        <div class="panel">
+            <h3>P2P Node Diagnostics</h3>
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div>Local System Load</div>
+                    <div class="stat-val" id="cpu-load">0.42%</div>
+                </div>
+                <div class="stat-card">
+                    <div>Active Mesh Peers</div>
+                    <div class="stat-val" id="peer-count">1,842</div>
+                </div>
+                <div class="stat-card">
+                    <div>Taxonomy Verified</div>
+                    <div class="stat-val secure" id="nodes-secured">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>Horizon Anomalies</div>
+                    <div class="stat-val anomaly" id="nodes-blocked">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Network Engine Telemetry Feed</h3>
+            <div class="log-stream" id="console-logs">
+                <div class="log-entry success">[SYSTEM INITIALIZED]: Network Layer Listening...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // System Configurations
+    const anchors = {
+        global_politics: { x: -0.50, y: 0.50, label: "ANCHOR: POLITICS" },
+        tech_scitech:    { x: 0.50, y: 0.50, label: "ANCHOR: SCI-TECH" },
+        human_culture:   { x: 0.10, y: -0.65, label: "ANCHOR: CULTURE" }
+    };
+
+    let processedNodes = [];
+    let securedCount = 0;
+    let anomalyCount = 0;
+
+    // Initialize Chart.js Object Matrix
+    const ctx = document.getElementById('poincareCanvas').getContext('2d');
+    const poincareChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                { label: 'Anchors', data: Object.values(anchors), backgroundColor: '#ffea7f', pointRadius: 10, pointHoverRadius: 12 },
+                { label: 'Secured Web Space', data: [], backgroundColor: '#58a6ff', pointRadius: 6 },
+                { label: 'Horizon Perimeter (Quarantined)', data: [], backgroundColor: '#f85149', pointRadius: 7 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: (ctx) => ctx.raw.label } }
+            },
+            scales: {
+                x: { min: -1.1, max: 1.1, grid: { color: '#21262d' }, ticks: { display: false } },
+                y: { min: -1.1, max: 1.1, grid: { color: '#21262d' }, ticks: { display: false } }
+            }
+        }
+    });
+
+    // Custom non-Euclidean distance metric calculation
+    function hyperbolicDistance(u_x, u_y, v_x, v_y) {
+        const sq_norm_u = u_x*u_x + u_y*u_y;
+        const sq_norm_v = v_x*v_x + v_y*v_y;
+        const sq_dist = (u_x - v_x)**2 + (u_y - v_y)**2;
+        const denom = Math.max((1.0 - sq_norm_u) * (1.0 - sq_norm_v), 1e-12);
+        return Math.acosh(1.0 + 2.0 * sq_dist / denom);
+    }
+
+    // Local Node processing loop simulation
+    function simulateIncomingStream() {
+        const topics = [
+            { title: "Quantum Computing Framework Breakthrough", type: "tech", entropy: 0.04 },
+            { title: "General Election Declared on Continental Mainland", type: "politics", entropy: 0.11 },
+            { title: "Metropolitan Orchestra Premieres Electronic Fusion Symphony", type: "culture", entropy: 0.14 },
+            { title: "CLICK HERE TO WIN FREE BITCOIN NOW FAST PAYOUT EXTREME PROMOTIONS", type: "spam", entropy: 0.94 },
+            { title: "AI Image Processing Architecture Optimized for Smart Web Devices", type: "tech", entropy: 0.08 },
+            { title: "Local Administrative Council Passes Global Green Emissions Policy", type: "politics", entropy: 0.15 },
+            { title: "Cheap Auto Loans! Special Financial Insurance Offers Click Here Today", type: "spam", entropy: 0.88 }
+        ];
+
+        const selected = topics[Math.floor(Math.random() * topics.length)];
+        const driftX = (Math.random() - 0.5) * 0.15;
+        const driftY = (Math.random() - 0.5) * 0.15;
+        
+        let initialX = 0, initialY = 0;
+        if (selected.type === 'tech') { initialX = 0.4 + driftX; initialY = 0.4 + driftY; }
+        else if (selected.type === 'politics') { initialX = -0.4 + driftX; initialY = 0.4 + driftY; }
+        else if (selected.type === 'culture') { initialX = 0.05 + driftX; initialY = -0.4 + driftY; }
+        else { initialX = 0.1; initialY = 0.1; }
+
+        let currentX = initialX;
+        let currentY = initialY;
+        let logWindow = document.getElementById("console-logs");
+
+        // UI Logger Update Function
+        function appendLog(text, cssClass) {
+            let el = document.createElement("div");
+            el.className = `log-entry ${cssClass}`;
+            el.innerText = text;
+            logWindow.appendChild(el);
+            logWindow.scrollTop = logWindow.scrollHeight;
+        }
+
+        appendLog(`📡 [Mesh Ingestion]: "${selected.title.substring(0, 40)}..."`, "info");
+
+        // Triage Gateway
+        if (selected.entropy >= 0.70) {
+            const mag = Math.sqrt(currentX*currentX + currentY*currentY) || 1;
+            currentX = (currentX / mag) * 0.96;
+            currentY = (currentY / mag) * 0.96;
+            
+            anomalyCount++;
+            document.getElementById("nodes-blocked").innerText = anomalyCount;
+            appendLog(`   ↳ 🚨 HORIZON WALL ISOLATION: Quarantined High-Entropy Stream (r: 0.9600)`, "warn");
+            
+            poincareChart.data.datasets[2].data.push({ x: currentX, y: currentY, label: `QUARANTINE: ${selected.title}` });
+        } else {
+            // Localized Non-Euclidean Relaxation Step Loops
+            for (let i = 0; i < 20; i++) {
+                let gradX = 0, gradY = 0;
+                const eps = 1e-5;
+
+                for (let key in anchors) {
+                    let anchor = anchors[key];
+                    let d = hyperbolicDistance(currentX, currentY, anchor.x, anchor.y);
+                    let gravity = Math.exp(-d * 0.5);
+
+                    let d_epsX = hyperbolicDistance(currentX + eps, currentY, anchor.x, anchor.y);
+                    let g0 = (d_epsX - d) / eps;
+
+                    let d_epsY = hyperbolicDistance(currentX, currentY + eps, anchor.x, anchor.y);
+                    let g1 = (d_epsY - d) / eps;
+
+                    gradX += g0 * gravity;
+                    gradY += g1 * gravity;
+                }
+
+                let scale = ((1.0 - (currentX*currentX + currentY*currentY))**2) / 4.0;
+                currentX = currentX - 0.03 * gradX * scale;
+                currentY = currentY - 0.03 * gradY * scale;
+            }
+
+            securedCount++;
+            document.getElementById("nodes-secured").innerText = securedCount;
+            const radius = Math.sqrt(currentX*currentX + currentY*currentY).toFixed(4);
+            appendLog(`   ↳ ✅ CORE VERIFICATION: Secured in Taxonomy Matrix (r: ${radius})`, "success");
+            
+            poincareChart.data.datasets[1].data.push({ x: currentX, y: currentY, label: `VERIFIED: ${selected.title}` });
+        }
+
+        // Dynamically recalculate local telemetry variations
+        document.getElementById("cpu-load").innerText = (0.2 + Math.random() * 0.5).toFixed(2) + "%";
+        poincareChart.update();
+    }
+
+    // Initialize Infinite Dynamic Processing Ingestion Intervals
+    setInterval(simulateIncomingStream, 3500);
+</script>
+
+</body>
+</html>
