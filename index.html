@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manifold Index: Live Cryptographic Ledger</title>
+    <title>The Hyperbolic Content-Addressable Network</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -14,6 +14,7 @@
             --accent-blue: #58a6ff;
             --accent-green: #7ee787;
             --accent-purple: #bc8cff;
+            --accent-yellow: #ffea7f;
         }
 
         body {
@@ -25,6 +26,17 @@
         header { text-align: center; margin-bottom: 25px; width: 100%; max-width: 1100px; }
         h1 { margin: 0; color: #fff; font-size: 2.2rem; letter-spacing: -0.5px; }
         .subtitle { color: #8b949e; margin: 6px 0 0 0; font-size: 1rem; }
+
+        .search-container { width: 100%; max-width: 600px; margin: 0 auto 25px auto; display: flex; gap: 10px; }
+        .search-bar {
+            flex: 1; background-color: #1c212c; border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 14px 18px; color: #fff; font-size: 1rem; outline: none;
+        }
+        .search-bar:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
+        .search-btn {
+            background-color: var(--accent-blue); color: #0b0e14; border: none;
+            border-radius: 8px; padding: 0 24px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+        }
 
         .main-layout { display: flex; gap: 24px; max-width: 1100px; width: 100%; justify-content: center; }
         .map-panel {
@@ -42,15 +54,17 @@
         .stat-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; }
         .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--accent-blue); margin-top: 4px; }
         .stat-val.secure { color: var(--accent-green); }
+        .stat-val.hash-meta { color: var(--accent-purple); font-family: monospace; font-size: 0.9rem; word-break: break-all; }
 
         .log-stream {
             background-color: #070a0f; border: 1px solid var(--border-color); border-radius: 8px;
-            height: 240px; overflow-y: auto; font-family: monospace; font-size: 0.82rem; padding: 12px; box-sizing: border-box;
+            height: 220px; overflow-y: auto; font-family: monospace; font-size: 0.82rem; padding: 12px; box-sizing: border-box;
         }
-        .log-entry { margin-bottom: 8px; line-height: 1.4; border-left: 3px solid transparent; padding-left: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .log-entry { margin-bottom: 8px; line-height: 1.4; border-left: 3px solid transparent; padding-left: 8px; }
         .log-entry.info { color: #8b949e; border-color: #388bfd; }
-        .log-entry.ledger { color: var(--accent-purple); border-color: var(--accent-purple); background: rgba(188, 140, 255, 0.03); }
+        .log-entry.ledger { color: var(--accent-purple); border-color: var(--accent-purple); }
         .log-entry.success { color: var(--accent-green); border-color: #2ea043; }
+        .log-entry.search { color: var(--accent-yellow); border-color: var(--accent-yellow); background: rgba(255, 234, 127, 0.03); padding: 4px; }
 
         canvas { max-width: 100%; max-height: 100%; }
     </style>
@@ -58,9 +72,14 @@
 <body>
 
 <header>
-    <h1>Manifold Index</h1>
-    <p class="subtitle">Live Cryptographic Hash Chain Ledger & Hyperbolic Mapping Core</p>
+    <h1>The Decentralized Manifold Internet</h1>
+    <p class="subtitle">Content-Addressable Keyword Hashing & Hyperbolic Routing Grid</p>
 </header>
+
+<div class="search-container">
+    <input type="text" id="queryInput" class="search-bar" placeholder="Type keywords to search content hashes (e.g., music, oral, farming)...">
+    <button class="search-btn" onclick="searchHashedContent()">Query Node</button>
+</div>
 
 <div class="main-layout">
     <div class="map-panel">
@@ -69,95 +88,165 @@
 
     <div class="sidebar">
         <div class="panel">
-            <h3>Cryptographic Chain State</h3>
+            <h3>Network Node Identity Matrix</h3>
             <div class="stat-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Verified Block Height</div>
-                    <div class="stat-val" id="block-height">0</div>
+                    <div class="stat-label">Total Content Anchors</div>
+                    <div class="stat-val secure" id="doc-count">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Latest Block Hash</div>
-                    <div class="stat-val secure" id="last-hash" style="font-size:0.9rem; font-family:monospace;">GENESIS</div>
+                    <div class="stat-label">Active Terms Vectorized</div>
+                    <div class="stat-val" id="term-count">0</div>
+                </div>
+                <div class="stat-card" style="grid-column: span 2;">
+                    <div class="stat-label">Latest Linked Content Hash</div>
+                    <div class="stat-val hash-meta" id="latest-root-hash">GENESIS_INIT</div>
                 </div>
             </div>
         </div>
 
         <div class="panel">
-            <h3>Ledger Invalidation & Block Logs</h3>
+            <h3>Mesh Distributed Ledger Pipeline</h3>
             <div class="log-stream" id="console-logs">
-                <div class="log-entry info">[SYSTEM INITIALIZED]: Genesis parameters armed. Standing by for ledger commits...</div>
+                <div class="log-entry info">[NET START]: Hyperbolic Content Router loaded. Intercepting data streams...</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let blockChain = [];
-    let lastBlockHash = "0000000000000000000000000000000000000000000000000000000000000000";
+    let contentNetwork = [];
+    let vocabulary = new Set();
+    let termFrequencyMatrix = [];
+    let inverseDocFrequencyMap = {};
+    let currentGlobalStateHash = "0000000000000000";
 
-    // Standard JavaScript Non-Crypto Pseudo-Hash Generator (For standalone browser environment)
-    function generatePseudoHash(inputString) {
+    // Mathematical utility to calculate location based on a text string
+    function getStringHashCoords(str) {
         let hash = 0;
-        for (let i = 0; i < inputString.length; i++) {
-            const char = inputString.charCodeAt(i);
-            hash = (hash << 5) - hash + char;
+        for (let i = 0; i < str.length; i++) {
+            hash = (hash << 5) - hash + str.charCodeAt(i);
             hash |= 0;
         }
-        return Math.abs(hash).toString(16).padStart(16, '0') + Math.abs(hash * 31).toString(16).padStart(16, '0');
+        const val = Math.abs(hash);
+        const radius = 0.25 + (val % 55) / 100;
+        const angle = (val % 360) * (Math.PI / 180);
+        return { x: radius * Math.cos(angle), y: radius * Math.sin(angle), rawSeed: val };
     }
 
-    function createNewLedgerBlock(textData) {
-        // Generate spatial coordinates based entirely on text structures
-        const hashSeed = textData.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const radius = 0.3 + (hashSeed % 50) / 100;
-        const angle = (hashSeed % 360) * (Math.PI / 180);
-        const x = radius * Math.cos(angle);
-        const y = radius * Math.sin(angle);
+    function tokenize(text) {
+        return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2);
+    }
 
-        // Build the immutable transaction data pack
-        const blockPayload = {
-            height: blockChain.length + 1,
-            data: textData,
-            coordinates: { x: x, y: y },
-            previousHash: lastBlockHash,
-            timestamp: Date.now()
+    // --- INTEGRATED CRAWL & HASH ENGINE ---
+    function ingestWebDocument(rawText) {
+        const words = tokenize(rawText);
+        if (words.length === 0) return;
+
+        // 1. Text Vector Mapping Setup
+        const counts = {};
+        const uniqueWords = new Set(words);
+        words.forEach(w => {
+            counts[w] = (counts[w] || 0) + 1;
+            vocabulary.add(w);
+        });
+        uniqueWords.forEach(w => {
+            inverseDocFrequencyMap[w] = (inverseDocFrequencyMap[w] || 0) + 1;
+        });
+        termFrequencyMatrix.push(counts);
+
+        // 2. Cryptographic Content Hashing (Simulating SHA-256 Content Identifier)
+        const coords = getStringHashCoords(rawText);
+        const blockString = rawText + currentGlobalStateHash + JSON.stringify(coords);
+        let blockHashVal = 0;
+        for (let i = 0; i < blockString.length; i++) {
+            blockHashVal = (blockHashVal << 5) - blockHashVal + blockString.charCodeAt(i);
+            blockHashVal |= 0;
+        }
+        const blockContentHash = "Qm" + Math.abs(blockHashVal).toString(16).toUpperCase() + Math.abs(blockHashVal * 19).toString(16).toUpperCase();
+        currentGlobalStateHash = blockContentHash;
+
+        // 3. Save Node Package to Mesh Network Array
+        const networkNode = {
+            text: rawText,
+            hashId: blockContentHash,
+            x: coords.x,
+            y: coords.y,
+            label: `[${blockContentHash.substring(0,8)}]: ${rawText.substring(0,25)}...`
         };
 
-        // Seal the block cryptographically using its contents and the previous history link
-        const currentBlockHash = generatePseudoHash(JSON.stringify(blockPayload) + lastBlockHash);
-        blockPayload.hash = currentBlockHash;
+        contentNetwork.push(networkNode);
 
-        // Push to master ledger arrays
-        blockChain.push(blockPayload);
-        lastBlockHash = currentBlockHash;
+        // Update User Dashboard UI
+        document.getElementById("doc-count").innerText = contentNetwork.length;
+        document.getElementById("term-count").innerText = vocabulary.size;
+        document.getElementById("latest-root-hash").innerText = blockContentHash;
 
-        // Render to user view interface logs
-        document.getElementById("block-height").innerText = blockPayload.height;
-        document.getElementById("last-hash").innerText = currentBlockHash.substring(0, 16).toUpperCase() + "...";
+        appendLog(`📡 [Mesh Ingest]: Crawled context & signed with hash address.`, "info");
+        appendLog(`   ↳ 🧱 CONTENT IDENTIFIER: ${blockContentHash.substring(0,24)}...`, "ledger");
 
-        appendConsoleLog(`📡 [CRAWL TRANSACTION]: Processing Node #${blockPayload.height}`, "info");
-        appendConsoleLog(`   ↳ 🧱 BLOCK LOCKED: [Hash: ${currentBlockHash.substring(0,20)}...]`, "ledger");
-        appendConsoleLog(`   ↳ ✅ LINK VERIFIED: Linked securely to Prev: [${blockPayload.previousHash.substring(0,10)}...]`, "success");
-
-        // Dynamic chart plotting updates
-        poincareChart.data.datasets[1].data.push({ x: x, y: y, label: `BLOCK #${blockPayload.height}: ${textData.substring(0,20)}...` });
+        poincareChart.data.datasets[1].data.push(networkNode);
         poincareChart.update();
     }
 
-    function appendConsoleLog(text, cssClass) {
+    // --- SEMANTIC CONTENT ROUTER SEARCH ---
+    function searchHashedContent() {
+        const queryText = document.getElementById("queryInput").value.trim();
+        if (!queryText) return;
+
+        appendLog(`🔍 [ROUTING REQUEST]: Resolving content hash for tokens: "${queryText}"`, "search");
+        const queryWords = tokenize(queryText);
+        const queryVector = {};
+        queryWords.forEach(w => { if (vocabulary.has(w)) queryVector[w] = (queryVector[w] || 0) + 1; });
+
+        if (Object.keys(queryVector).length === 0) {
+            appendLog(`   ↳ ❌ Content address resolution failed. Keywords not indexed in node clusters.`, "warn");
+            return;
+        }
+
+        let matchedNode = null;
+        let highestProximityScore = -1;
+        poincareChart.data.datasets[2].data = [];
+
+        contentNetwork.forEach((node, idx) => {
+            let score = 0;
+            const docCounts = termFrequencyMatrix[idx];
+            for (let word in queryVector) {
+                if (docCounts[word]) {
+                    const tf = docCounts[word];
+                    const idf = Math.log(contentNetwork.length / (inverseDocFrequencyMap[word] || 1)) + 1;
+                    score += tf * idf;
+                }
+            }
+            if (score > highestProximityScore) { highestProximityScore = score; matchedNode = node; }
+        });
+
+        if (matchedNode && highestProximityScore > 0) {
+            appendLog(`   ↳ 🎯 CONTENT LINK DECRYPTED! Proximity Matrix Match.`, "success");
+            appendLog(`   ↳ [RESOLVED DATA]: "${matchedNode.text}"`, "success");
+            appendLog(`   ↳ [HASH ADDRESS]: ${matchedNode.hashId}`, "ledger");
+            poincareChart.data.datasets[2].data.push({ x: matchedNode.x, y: matchedNode.y, label: `TARGET MESH HIT` });
+        } else {
+            appendLog(`   ↳ ❌ No relevant network addresses could verify matching signatures.`, "warn");
+        }
+        poincareChart.update();
+    }
+
+    function appendLog(text, cssClass) {
         let logWindow = document.getElementById("console-logs");
         let el = document.createElement("div"); el.className = `log-entry ${cssClass}`;
         el.innerText = text; logWindow.appendChild(el); logWindow.scrollTop = logWindow.scrollHeight;
     }
 
-    // Chart Configuration Architecture
+    // Canvas Visualization Pipeline
     const ctx = document.getElementById('poincareCanvas').getContext('2d');
     const poincareChart = new Chart(ctx, {
         type: 'scatter',
         data: {
             datasets: [
-                { label: 'Origin Root', data: [{x:0, y:0, label: "GENESIS ROOT"}], backgroundColor: '#ffea7f', pointRadius: 8 },
-                { label: 'Immutable Ledger Blocks', data: [], backgroundColor: '#bc8cff', pointRadius: 7 }
+                { label: 'Network Core', data: [{x:0, y:0, label: "MAIN ENGINE SEED LAYER"}], backgroundColor: '#ffea7f', pointRadius: 8 },
+                { label: 'Hashed Internet Content', data: [], backgroundColor: '#bc8cff', pointRadius: 6 },
+                { label: 'Active Target Request Route', data: [], backgroundColor: '#7ee787', pointRadius: 12, borderWidth: 2, borderColor: '#fff' }
             ]
         },
         options: {
@@ -170,24 +259,24 @@
         }
     });
 
-    const cultureStream = [
-        "Preserving oral legends across generational native histories.",
-        "Scoping complex mathematical movements in orchestral compositions.",
-        "Decoding ancient graphic glyph dialects across ruined stone vaults.",
-        "Tracing modern internet folklore evolution inside community trends.",
-        "Structural geometry modeling for sustainable modular architecture.",
-        "Archiving ancient seed rotation methodologies to counter desertification."
+    const humanInternetDataStream = [
+        "Ancient oral folklore and traditional myths passed down through native community storytelling generations.",
+        "Classical symphonies music composition orchestration and complex structural harmonic rhythms.",
+        "Mesoamerican archeological discoveries translation of historical phonetic alphabets and glyph languages.",
+        "Modern digital pop folklore internet meme evolution viral phrasing trends and community dialects.",
+        "Minimalist architectural blueprints urban layout planning industrial design aesthetic building spaces.",
+        "Indigenous historical farming techniques preservation of ecosystem knowledge and agricultural heritage."
     ];
 
-    let streamIdx = 0;
-    function executeLedgerCycle() {
-        if (streamIdx < cultureStream.length) {
-            createNewLedgerBlock(cultureStream[streamIdx]);
-            streamIdx++;
-            setTimeout(executeLedgerCycle, 3000);
+    let dataIdx = 0;
+    function runMeshNetworkCrawl() {
+        if (dataIdx < humanInternetDataStream.length) {
+            ingestWebDocument(humanInternetDataStream[dataIdx]);
+            dataIdx++;
+            setTimeout(runMeshNetworkCrawl, 3000);
         }
     }
-    setTimeout(executeLedgerCycle, 1500);
+    setTimeout(runMeshNetworkCrawl, 1000);
 </script>
 
 </body>
