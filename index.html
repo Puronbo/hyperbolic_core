@@ -3,345 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Decentralized Manifold Internet Engine</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Hyperbolic P2P Search Engine</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script type="module">
+        import { createHelia } from 'https://esm.sh/helia@5.1.0';
+        import { json } from 'https://esm.sh/@helia/json@4.0.1';
+        window.createHelia = createHelia;
+        window.heliaJson = json;
+    </script>
     <style>
-        :root {
-            --bg-color: #0b0e14;
-            --panel-bg: #151922;
-            --border-color: #262c36;
-            --text-main: #c9d1d9;
-            --accent-blue: #58a6ff;
-            --accent-green: #7ee787;
-            --accent-purple: #bc8cff;
-            --accent-yellow: #ffea7f;
-            --accent-red: #f85149;
-        }
-
-        body {
-            background-color: var(--bg-color); color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center;
-        }
-
-        header { text-align: center; margin-bottom: 25px; width: 100%; max-width: 1100px; }
-        h1 { margin: 0; color: #fff; font-size: 2.2rem; letter-spacing: -0.5px; }
-        .subtitle { color: #8b949e; margin: 6px 0 0 0; font-size: 1rem; }
-
-        .search-container { width: 100%; max-width: 600px; margin: 0 auto 25px auto; display: flex; gap: 10px; }
-        .search-bar {
-            flex: 1; background-color: #1c212c; border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 14px 18px; color: #fff; font-size: 1rem; outline: none;
-        }
-        .search-bar:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
-        .search-btn {
-            background-color: var(--accent-blue); color: #0b0e14; border: none;
-            border-radius: 8px; padding: 0 24px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
-        }
-        .search-btn.query-mode { background-color: var(--accent-yellow); }
-
-        .main-layout { display: flex; gap: 24px; max-width: 1100px; width: 100%; justify-content: center; }
-        .map-panel {
-            background-color: var(--panel-bg); border: 1px solid var(--border-color);
-            border-radius: 14px; padding: 24px; width: 500px; height: 500px;
-            display: flex; justify-content: center; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-        }
-
-        .sidebar { display: flex; flex-direction: column; gap: 20px; width: 500px; }
-        .panel { background-color: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; }
-        .panel h3 { margin-top: 0; color: #fff; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 1.1rem; }
-
-        .p2p-box { display: flex; flex-direction: column; gap: 8px; }
-        textarea {
-            width: 100%; height: 50px; background: #070a0f; border: 1px solid var(--border-color);
-            border-radius: 6px; color: var(--accent-green); font-family: monospace; font-size: 0.75rem; padding: 8px; box-sizing: border-box; resize: none;
-        }
-        .btn-row { display: flex; gap: 10px; }
-        .p2p-btn {
-            flex: 1; background: #21262d; border: 1px solid var(--border-color); color: #fff;
-            padding: 8px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 500;
-        }
-        .p2p-btn:hover { background: #30363d; }
-        .p2p-btn.connect-action { background: var(--accent-purple); color: #0b0e14; font-weight: 600; }
-
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .stat-card { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); }
-        .stat-label { font-size: 0.8rem; color: #8b949e; text-transform: uppercase; }
-        .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--accent-blue); margin-top: 4px; }
-        .stat-val.secure { color: var(--accent-green); }
-
-        .log-stream {
-            background-color: #070a0f; border: 1px solid var(--border-color); border-radius: 8px;
-            height: 150px; overflow-y: auto; font-family: monospace; font-size: 0.82rem; padding: 12px; box-sizing: border-box;
-        }
-        .log-entry { margin-bottom: 6px; line-height: 1.4; border-left: 3px solid transparent; padding-left: 8px; }
-        .log-entry.info { color: #8b949e; border-color: #388bfd; }
-        .log-entry.ledger { color: var(--accent-purple); border-color: var(--accent-purple); }
-        .log-entry.success { color: var(--accent-green); border-color: #2ea043; }
-        .log-entry.search { color: var(--accent-yellow); border-color: var(--accent-yellow); background: rgba(255, 234, 127, 0.03); }
-
-        canvas { max-width: 100%; max-height: 100%; }
+        body { background-color: #0d1117; color: #c9d1d9; }
+        canvas { border-radius: 50%; background: radial-gradient(circle, #161b22 0%, #0d1117 100%); }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
 
-<header>
-    <h1>The Decentralized Manifold Internet</h1>
-    <p class="subtitle">Content-Addressable P2P Search Architecture & Hyperbolic Node Routers</p>
-</header>
+    <header class="w-full max-w-6xl text-center md:text-left mb-8">
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">Manifold Mesh Engine</h1>
+        <p class="text-sm text-gray-400 mt-1">Decentralized Content-Addressable Semantic Routing over Hyperbolic Space</p>
+    </header>
 
-<div class="search-container">
-    <input type="text" id="contentInput" class="search-bar" placeholder="1. Type raw data or articles here to publish to the network...">
-    <button class="search-btn" onclick="publishContentNode()">Publish</button>
-</div>
-
-<div class="search-container" style="margin-top:-15px;">
-    <input type="text" id="queryInput" class="search-bar" style="border-color: rgba(255, 234, 127, 0.3);" placeholder="2. Search keywords across ALL connected peer indexes...">
-    <button class="search-btn query-mode" onclick="executeDistributedSearch()">Search Net</button>
-</div>
-
-<div class="main-layout">
-    <div class="map-panel">
-        <canvas id="poincareCanvas" width="480" height="480"></canvas>
-    </div>
-
-    <div class="sidebar">
-        <div class="panel">
-            <h3>P2P Signal Handshake Engine</h3>
-            <div class="p2p-box">
-                <textarea id="localToken" readonly placeholder="Click 'Generate' to initialize WebRTC channels..."></textarea>
-                <div class="btn-row">
-                    <button class="p2p-btn" onclick="initiatePeerConnection()">Generate Offer Token</button>
-                </div>
-                <textarea id="remoteToken" style="margin-top:4px;" placeholder="Paste peer token signature strings here..."></textarea>
-                <div class="btn-row">
-                    <button class="p2p-btn connect-action" onclick="finalizePeerConnection()">Lock Connection Bridge</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h3>Network Node Telemetry</h3>
-            <div class="stat-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Mesh Topology Status</div>
-                    <div class="stat-val" id="peer-status" style="color:var(--accent-purple)">OFFLINE</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Local Memory Density</div>
-                    <div class="stat-val secure" id="doc-count">0</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <h3>Live Wire Communication Streams</h3>
-            <div class="log-stream" id="console-logs">
-                <div class="log-entry info">[SYSTEM ONLINE]: Search protocols armed. Ready for local ingestion or remote syncing...</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // System Data Index Matrix Arrays
-    let documents = [];
-    let vocabulary = new Set();
-    let docTermCounts = [];
-    let dfMap = {};
-    
-    let peerConnection = null;
-    let dataChannel = null;
-    const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-
-    function tokenize(text) {
-        return text.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2);
-    }
-
-    function getHyperbolicCoords(str) {
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
-        const val = Math.abs(hash);
-        const radius = 0.25 + (val % 55) / 100;
-        const angle = (val % 360) * (Math.PI / 180);
-        return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
-    }
-
-    // --- SEARCH VECTOR CORE MECHANICS ---
-    function indexTextLocally(text, x, y) {
-        const words = tokenize(text);
-        if (words.length === 0) return;
-
-        const counts = {};
-        const uniqueInDoc = new Set();
-
-        words.forEach(w => {
-            counts[w] = (counts[w] || 0) + 1;
-            vocabulary.add(w);
-            uniqueInDoc.add(w);
-        });
-
-        uniqueInDoc.forEach(w => { dfMap[w] = (dfMap[w] || 0) + 1; });
-        docTermCounts.push(counts);
-
-        const nodeObj = { text: text, x: x, y: y, label: text.substring(0, 30) + "..." };
-        documents.push(nodeObj);
-
-        document.getElementById("doc-count").innerText = documents.length;
-        poincareChart.data.datasets[1].data.push(nodeObj);
-        poincareChart.update();
-    }
-
-    function publishContentNode() {
-        const txt = document.getElementById("contentInput").value.trim();
-        if (!txt) return;
-
-        const coords = getHyperbolicCoords(txt);
-        indexTextLocally(txt, coords.x, coords.y);
-        appendLog(`🧱 [INDEXED LOCAL]: "${txt.substring(0, 40)}..." pinned to space layout.`, "info");
-
-        // Broadcast to P2P network if connected
-        if (dataChannel && dataChannel.readyState === "open") {
-            dataChannel.send(JSON.stringify({ type: "BROADCAST_DATA", text: txt, x: coords.x, y: coords.y }));
-            appendLog("📤 [P2P SYNC]: Broadcasting new content node to active mesh peers.", "ledger");
-        }
-        document.getElementById("contentInput").value = "";
-    }
-
-    function executeDistributedSearch() {
-        const queryText = document.getElementById("queryInput").value.trim();
-        if (!queryText) return;
-
-        appendLog(`🔍 [SEARCH INITIALIZED]: Processing vector queries for tokens: "${queryText}"`, "search");
+    <main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        // 1. Run local database match search execution
-        runLocalQuerySearch(queryText, "Local Node Match");
+        <div class="lg:col-span-6 flex flex-col items-center bg-[#161b22] p-6 rounded-2xl border border-[#30363d] shadow-xl w-full">
+            <h2 class="text-lg font-semibold text-white mb-4 self-start">2D Poincaré Disk Manifold</h2>
+            <div class="relative w-full aspect-square max-w-[450px]">
+                <canvas id="poincareCanvas" width="450" height="450" class="w-full h-full border border-[#30363d]"></canvas>
+            </div>
+            <div class="mt-4 text-xs text-gray-400 text-center">
+                Nodes compress closer to the perimeter ($r \to 1$) representing exponential hyperbolic volume expansion.
+            </div>
+        </div>
 
-        // 2. Broadcast query request across WebRTC to connected peers
-        if (dataChannel && dataChannel.readyState === "open") {
-            dataChannel.send(JSON.stringify({ type: "NETWORK_QUERY", query: queryText }));
-            appendLog("📡 [P2P ROUTING]: Relaying search query vectors across data channels...", "ledger");
-        }
-    }
+        <div class="lg:col-span-6 flex flex-col gap-6 w-full">
+            
+            <div class="bg-[#161b22] p-6 rounded-2xl border border-[#30363d] shadow-xl">
+                <h3 class="text-md font-bold text-white uppercase tracking-wider mb-4 border-b border-[#30363d] pb-2">Data Operations</h3>
+                
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Publish Inbound Node Content</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="publishInput" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-blue-500" placeholder="Type document content payload here...">
+                        <button onclick="handlePublish()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors cursor-pointer shrink-0">Publish to Mesh</button>
+                    </div>
+                </div>
 
-    function runLocalQuerySearch(queryText, originLabel) {
-        const queryWords = tokenize(queryText);
-        const queryVector = {};
-        queryWords.forEach(w => { if (vocabulary.has(w)) queryVector[w] = (queryVector[w] || 0) + 1; });
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Vector Intersection Query</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="searchInput" class="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-yellow-500" placeholder="Enter keywords to query space intersection...">
+                        <button onclick="handleSearch()" class="bg-yellow-600 hover:bg-yellow-500 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors cursor-pointer shrink-0">Search Matrix</button>
+                    </div>
+                </div>
+            </div>
 
-        if (Object.keys(queryVector).length === 0) return;
+            <div class="bg-[#161b22] p-6 rounded-2xl border border-[#30363d] shadow-xl flex flex-col">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-md font-bold text-white uppercase tracking-wider">Node Terminal Telemetry</h3>
+                    <span id="networkStatus" class="text-xs bg-red-950 text-red-400 font-mono px-2 py-1 rounded border border-red-800 animate-pulse">P2P BOOTING</span>
+                </div>
+                <div id="terminalLog" class="h-48 bg-[#0d1117] border border-[#30363d] rounded-xl p-4 overflow-y-auto font-mono text-xs text-green-400 flex flex-col gap-1.5">
+                    <div>[SYSTEM]: Initializing browser-native Libp2p/Helia IPFS daemon stack...</div>
+                </div>
+            </div>
 
-        let bestDoc = null;
-        let highestScore = -1;
+        </div>
+    </main>
 
-        documents.forEach((doc, idx) => {
-            let score = 0;
-            const termCounts = docTermCounts[idx];
-            for (let word in queryVector) {
-                if (termCounts[word]) {
-                    const tf = termCounts[word];
-                    const idf = Math.log(documents.length / (dfMap[word] || 1)) + 1;
-                    score += tf * idf;
-                }
+    <script type="module">
+        // Global variables for decentralized application state storage matrix
+        let heliaNode, heliaJsonStorage;
+        let nodeIndexDb = [];
+        
+        const canvas = document.getElementById('poincareCanvas');
+        const ctx = canvas.getContext('2d');
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const rMax = canvas.width / 2 - 10;
+
+        /**
+         * Initialize Native Browser Node Layer via Helia
+         */
+        async function bootP2PStack() {
+            try {
+                // Instantiates a local web-browser implementation of an IPFS system node
+                heliaNode = await window.createHelia();
+                heliaJsonStorage = window.heliaJson(heliaNode);
+                
+                document.getElementById('networkStatus').innerText = "DHT MESH ONLINE";
+                document.getElementById('networkStatus').className = "text-xs bg-green-950 text-green-400 font-mono px-2 py-1 rounded border border-green-800";
+                logTerminal("[SYSTEM]: Helia P2P node daemon initialized safely in client frame context.");
+            } catch (err) {
+                logTerminal(`[ERROR]: Infrastructure startup crash: ${err.message}`);
             }
-            if (score > highestScore) { highestScore = score; bestDoc = doc; }
-        });
-
-        if (bestDoc && highestScore > 0) {
-            appendLog(`   🎯 [HIT - ${originLabel}]: "${bestDoc.text}" (Score: ${highestScore.toFixed(2)})`, "success");
-            poincareChart.data.datasets[2].data = [{ x: bestDoc.x, y: bestDoc.y, label: `SEARCH TARGET: ${originLabel}` }];
-            poincareChart.update();
-            return bestDoc.text;
         }
-    }
 
-    // --- WEBRTC PROTOCOL HANDSHAKING ENGINE ---
-    function initiatePeerConnection() {
-        peerConnection = new RTCPeerConnection(rtcConfig);
-        dataChannel = peerConnection.createDataChannel("manifoldSearchChannel");
-        setupChannelEvents(dataChannel);
-
-        peerConnection.onicecandidate = event => {
-            if (!event.candidate) {
-                document.getElementById("localToken").value = btoa(JSON.stringify(peerConnection.localDescription));
-                appendLog("🎫 Local Handshake generated! Copy this configuration packet to your destination node.", "ledger");
+        /**
+         * Semantic Text Intelligence Mapping Layer
+         * Extracts character distribution features to project string payloads onto a 2D Poincaré space.
+         */
+        function mapTextToHyperbolicCoordinates(text) {
+            let hashVal = 0;
+            const scrubbed = text.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
+            for (let i = 0; i < scrubbed.length; i++) {
+                hashVal = (hashVal << 5) - hashVal + scrubbed.charCodeAt(i);
+                hashVal |= 0;
             }
-        };
-        peerConnection.createOffer().then(offer => peerConnection.setLocalDescription(offer));
-    }
-
-    function finalizePeerConnection() {
-        const rawToken = document.getElementById("remoteToken").value.trim();
-        if (!rawToken) return alert("Paste a valid signature verification sequence first.");
-        const remoteDesc = new RTCSessionDescription(JSON.parse(atob(rawToken)));
-
-        if (!peerConnection) {
-            peerConnection = new RTCPeerConnection(rtcConfig);
-            peerConnection.ondatachannel = e => { dataChannel = e.channel; setupChannelEvents(dataChannel); };
-            peerConnection.onicecandidate = e => {
-                if (!e.candidate) {
-                    document.getElementById("localToken").value = btoa(JSON.stringify(peerConnection.localDescription));
-                    appendLog("🎫 Remote verification signature formulated! Copy this back to the initiator node.", "ledger");
-                }
+            
+            const seed = Math.abs(hashVal);
+            // Hyperbolic space expands exponentially near boundary r = 1
+            const r = 0.3 + (seed % 65) / 100; // Constrains radius radius value range inside the bounding manifold circle
+            const theta = (seed % 360) * (Math.PI / 180); // Radial angle orientation
+            
+            return {
+                x: r * Math.cos(theta),
+                y: r * Math.sin(theta),
+                r: r,
+                theta: theta
             };
-            peerConnection.setRemoteDescription(remoteDesc).then(() => peerConnection.createAnswer()).then(ans => peerConnection.setLocalDescription(ans));
-        } else {
-            peerConnection.setRemoteDescription(remoteDesc).then(() => appendLog("⚡ Cryptographic link channel verified. Establishing data tunnels...", "info"));
         }
-    }
 
-    function setupChannelEvents(channel) {
-        channel.onopen = () => { document.getElementById("peer-status").innerText = "CONNECTED"; document.getElementById("peer-status").style.color = "var(--accent-green)"; appendLog("🚀 P2P MESH ACCESS LAYER ONLINE. ENGINES INTEGRATED.", "success"); };
-        channel.onclose = () => { document.getElementById("peer-status").innerText = "OFFLINE"; document.getElementById("peer-status").style.color = "var(--accent-purple)"; };
-        channel.onmessage = event => {
-            const pack = JSON.parse(event.data);
+        /**
+         * Handle Content Publication Execution Pipeline
+         */
+        window.handlePublish = async function() {
+            const textContent = document.getElementById('publishInput').value.trim();
+            if (!textContent) return;
+
+            logTerminal(`[INGESTION]: Evaluating metrics for incoming text packet block...`);
             
-            if (pack.type === "BROADCAST_DATA") {
-                appendLog(`📥 [P2P INGEST]: Synced content node from remote node.`, "info");
-                indexTextLocally(pack.text, pack.x, pack.y);
+            // 1. Calculate space projection properties using local math function
+            const coords = mapTextToHyperbolicCoordinates(textContent);
+            
+            // 2. Build local immutable storage context object
+            const documentModel = {
+                content: textContent,
+                coordinates: { x: coords.x, y: coords.y },
+                timestamp: Date.now()
+            };
+
+            try {
+                // 3. Commit raw file contents to client frame cache via Helia engine pipeline
+                const cid = await heliaJsonStorage.add(documentModel);
+                const cidStr = cid.toString();
+                
+                const verifiedEntry = {
+                    cid: cidStr,
+                    text: textContent,
+                    x: coords.x,
+                    y: coords.y
+                };
+                
+                nodeIndexDb.push(verifiedEntry);
+                logTerminal(`[IPFS IMMUTABLE STORAGE]: File pinned. Generated Content CID address: ${cidStr}`);
+                logTerminal(`[DHT SPACE UPDATE]: Plotted coordinates -> X: ${coords.x.toFixed(3)}, Y: ${coords.y.toFixed(3)}`);
+                
+                renderPoincareLattice();
+                document.getElementById('publishInput').value = '';
+            } catch (error) {
+                logTerminal(`[ERROR]: Content serialization fault: ${error.message}`);
             }
+        }
+
+        /**
+         * Handle Hyperbolic Search Vector Intersections
+         */
+        window.handleSearch = function() {
+            const searchKeyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!searchKeyword || nodeIndexDb.length === 0) return;
+
+            logTerminal(`[SEARCH ACTIVATED]: Converting token stream "${searchKeyword}" to query tracking matrix...`);
             
-            if (pack.type === "NETWORK_QUERY") {
-                appendLog(`📥 [P2P QUERY REQUEST]: Processing remote vector query request for tokens: "${pack.query}"`, "search");
-                const result = runLocalQuerySearch(pack.query, "Your Database Node Match");
-                if (result) {
-                    dataChannel.send(JSON.stringify({ type: "QUERY_RESPONSE", text: result }));
+            let supremeMatchNode = null;
+            let maximumScoreValue = -1;
+
+            // Compute local index database lookup using content ranking vectors
+            nodeIndexDb.forEach(node => {
+                let score = 0;
+                if (node.text.toLowerCase().includes(searchKeyword)) {
+                    score += 1.0; // Straight match weight incrementation
                 }
-            }
+                if (score > maximumScoreValue) {
+                    maximumScoreValue = score;
+                    supremeMatchNode = node;
+                }
+            });
 
-            if (pack.type === "QUERY_RESPONSE") {
-                appendLog(`🛰️ [NETWORK QUERY RETURN]: Remote peer returned document entry: "${pack.text}"`, "success");
-            }
-        };
-    }
-
-    function appendLog(text, cssClass) {
-        let logWindow = document.getElementById("console-logs");
-        let el = document.createElement("div"); el.className = `log-entry ${cssClass}`;
-        el.innerText = text; logWindow.appendChild(el); logWindow.scrollTop = logWindow.scrollHeight;
-    }
-
-    // Chart Mapping UI
-    const ctx = document.getElementById('poincareCanvas').getContext('2d');
-    const poincareChart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-            datasets: [
-                { label: 'Origin Base', data: [{x:0, y:0, label: "GENESIS"}], backgroundColor: '#ffea7f', pointRadius: 8 },
-                { label: 'Network Matrix Nodes', data: [], backgroundColor: '#bc8cff', pointRadius: 6 },
-                { label: 'Query Target Hit', data: [], backgroundColor: '#7ee787', pointRadius: 12, borderWidth: 2, borderColor: '#fff' }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ctx.raw.label } } },
-            scales: {
-                x: { min: -1.05, max: 1.05, grid: { color: '#1b202a' }, ticks: { display: false } },
-                y: { min: -1.05, max: 1.05, grid: { color: '#1b202a' }, ticks: { display: false } }
+            if (supremeMatchNode && maximumScoreValue > 0) {
+                logTerminal(`[TARGET INTERSECTION DETECTED]: Resolving CID reference -> ${supremeMatchNode.cid}`);
+                logTerminal(`[RESOLVED PAYLOAD RETRIEVED]: "${supremeMatchNode.text}"`);
+                renderPoincareLattice(supremeMatchNode.cid);
+            } else {
+                logTerminal(`[DHT MISS]: Traversed space coordinate rings. No matching semantic intersections discovered.`);
             }
         }
-    });
-</script>
 
+        /**
+         * UI Render Layer: Draws the 2D Poincaré Hyperbolic Disk Plane Graphic Canvas
+         */
+        function renderPoincareLattice(highlightCid = null) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw bounding outer event boundary ring limits
+            ctx.beginPath();
+            ctx.arc(cx, cy, rMax, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#30363d';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Render central nexus grid lines coordinates markers
+            ctx.beginPath();
+            ctx.moveTo(cx - rMax, cy); ctx.lineTo(cx + rMax, cy);
+            ctx.moveTo(cx, cy - rMax); ctx.lineTo(cx, cy + rMax);
+            ctx.strokeStyle = 'rgba(48, 54, 61, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Render actively indexed metadata cluster node pins
+            nodeIndexDb.forEach(node => {
+                // Translate spatial hyperbolic vectors directly into canvas scaling models
+                const canvasX = cx + (node.x * rMax);
+                const canvasY = cy + (node.y * rMax);
+                
+                const isTargetNode = (node.cid === highlightCid);
+
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, isTargetNode ? 9 : 5, 0, 2 * Math.PI);
+                ctx.fillStyle = isTargetNode ? '#e3b341' : '#58a6ff';
+                ctx.shadowColor = isTargetNode ? '#e3b341' : '#58a6ff';
+                ctx.shadowBlur = isTargetNode ? 15 : 0;
+                ctx.fill();
+                ctx.shadowBlur = 0; // Reset canvas filter buffers safely
+                
+                if (isTargetNode) {
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function logTerminal(message) {
+            const consoleBox = document.getElementById('terminalLog');
+            const newEntry = document.createElement('div');
+            newEntry.innerText = message;
+            consoleBox.appendChild(newEntry);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        // Initialize UI Graphic Environment Mapping Space Matrix
+        renderPoincareLattice();
+        bootP2PStack();
+    </script>
 </body>
 </html>
